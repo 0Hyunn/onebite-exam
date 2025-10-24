@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+/* 전역적인 css 파일인 index.css에서 tailwind를 import하면, 
+ * main.tsx에서 index.css를 import하고 있으므로, 
+ * 모든 컴포넌트에서 tailwind를 사용할 수 있습니다. 
+ */
