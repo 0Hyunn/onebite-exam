@@ -1,5 +1,11 @@
 import { create } from "zustand";
-import { combine } from "zustand/middleware";
+import {
+  combine,
+  subscribeWithSelector,
+  persist,
+  createJSONStorage,
+  devtools,
+} from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 // type store = {
@@ -16,22 +22,43 @@ import { immer } from "zustand/middleware/immer";
  * 2. zustand/middleware/immer - 미들웨어를 활용해 상태변경을 불변성을 유지하면서 직접 변경할 수 있게 함
  */
 export const useCountStore = create(
-  immer(
-    combine({ count: 0 }, (set, get) => ({
-      actions: {
-        increaseOne: () => {
-          set((state) => {
-            state.count += 1;
-          });
-        },
-        decreaseOne: () => {
-          set((state) => {
-            state.count -= 1;
-          });
-        },
+  devtools(
+    persist(
+      subscribeWithSelector(
+        immer(
+          combine({ count: 0 }, (set, get) => ({
+            actions: {
+              increaseOne: () => {
+                set((state) => {
+                  state.count += 1;
+                });
+              },
+              decreaseOne: () => {
+                set((state) => {
+                  state.count -= 1;
+                });
+              },
+            },
+          })),
+        ),
+      ),
+      {
+        name: "countStore",
+        partialize: (store) => ({ count: store.count }),
+        storage: createJSONStorage(() => sessionStorage),
       },
-    })),
+    ),
+    { name: "countStore" },
   ),
+);
+
+useCountStore.subscribe(
+  (store) => store.count,
+  (count, prevCount) => {
+    console.log(count, prevCount);
+
+    const store = useCountStore.getState();
+  },
 );
 
 // export const useCountStore = create<store>((set, get) => ({
