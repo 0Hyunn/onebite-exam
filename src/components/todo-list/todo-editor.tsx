@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { useCreateTodo } from "@/store/todos";
+import { useCreateTodoMutation } from "@/hooks/mutations/use-create-todo-mutation";
 
 export default function TodoEditor() {
-  // 할 일 추가 액션 호출
-  const createTodo = useCreateTodo();
+  const { mutate, isPending } = useCreateTodoMutation();
 
   // 할 일 내용 상태
   const [content, setContent] = useState("");
@@ -13,7 +12,8 @@ export default function TodoEditor() {
   // 추가 버튼 클릭 시 할 일 추가
   const handleAddClick = () => {
     if (content.trim() === "") return;
-    createTodo(content);
+    mutate(content);
+
     setContent("");
   };
 
@@ -24,7 +24,9 @@ export default function TodoEditor() {
         value={content}
         onChange={(e) => setContent(e.target.value)}
       />
-      <Button onClick={handleAddClick}>추가</Button>
+      <Button disabled={isPending} onClick={handleAddClick}>
+        {isPending ? "추가중..." : "추가"}
+      </Button>
     </div>
   );
 }
